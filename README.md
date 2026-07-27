@@ -3,4 +3,3 @@ A lightweight packaging procurement analytics project that transforms Famous ERP
 
 ## Architecture
 
-![Packaging Intelligence architecture](imgs/application_flow_diagram.png)
