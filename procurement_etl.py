@@ -1,4 +1,5 @@
 import re
+import duckdb
 import pandas as pd
 from datetime import datetime
 
@@ -23,7 +24,7 @@ timestamp = '2026_07_16'
 
 FILE = 'shipping_report_' + timestamp + '.csv'
 
-shipping_report = pd.read_csv(FILE, usecols=['productdescr', 'qnt1']).rename(columns={'qnt1' : 'quantity'})
+shipping_report = pd.read_csv('./data/famous_exports/' + FILE, usecols=['productdescr', 'qnt1']).rename(columns={'qnt1' : 'quantity'})
 
 shipping_report["productdescr"] = shipping_report["productdescr"].astype('str')
 shipping_report["quantity"] = shipping_report["quantity"].astype('int').fillna(0)
@@ -40,6 +41,7 @@ for rule in MAPPING.itertuples(index=False):
         rf"(?!\w)"
         rf".*{re.escape(label)}\s*$"
     )
+
     matches = shipping_report["productdescr"].str.contains(
         pattern,
         case=False,
@@ -55,4 +57,41 @@ for rule in MAPPING.itertuples(index=False):
 
 summary = pd.DataFrame(results)
 
-print(summary)
+# print(summary)
+
+with duckdb.connect('./database/procurement_mart.db') as con:
+    con.execute("DROP TABLE IF EXISTS fact_shipment")
+    con.execute("""
+              CREATE TABLE IF NOT EXISTS fact_shipment (
+                source_file VARCHAR,
+                weight VARCHAR NOT NULL, 
+                label VARCHAR NOT NULL, 
+                quantity BIGINT NOT NULL, 
+                imported_at TIMESTAMP NOT NULL 
+                )
+                """)
+
+    for row in summary.itertuples(index=False):
+        con.execute(
+            """
+            INSERT INTO fact_shipment (
+                source_file,
+                weight,
+                label,
+                quantity,
+                imported_at
+            )
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            [
+                FILE,
+                row.weight,
+                row.label,
+                int(row.quantity),
+                datetime.now()
+            ]
+        )
+
+    con.table("fact_shipment").show()
+
+    con.execute("DROP TABLE fact_shipment")
