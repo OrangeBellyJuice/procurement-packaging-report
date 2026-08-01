@@ -11,7 +11,7 @@ from datetime import datetime
     3. upload data procurement.duckdb
 """
 
-MAPPING = pd.read_csv('product_mapping.csv')
+MAPPING = pd.read_csv('./data/product_mapping.csv')
 
 t = datetime.now()
 #timestamp = (
@@ -63,7 +63,6 @@ with duckdb.connect('./database/procurement_mart.db') as con:
     con.execute("DROP TABLE IF EXISTS fact_shipment")
     con.execute("""
               CREATE TABLE IF NOT EXISTS fact_shipment (
-                source_file VARCHAR,
                 weight VARCHAR NOT NULL, 
                 label VARCHAR NOT NULL, 
                 quantity BIGINT NOT NULL, 
@@ -75,22 +74,19 @@ with duckdb.connect('./database/procurement_mart.db') as con:
         con.execute(
             """
             INSERT INTO fact_shipment (
-                source_file,
                 weight,
                 label,
                 quantity,
                 imported_at
             )
-            VALUES (?, ?, ?, ?, ?)
-            """,
-            [
-                FILE,
-                row.weight,
-                row.label,
-                int(row.quantity),
-                datetime.now()
-            ]
-        )
+            VALUES (?, ?, ?, current_timestamp::TIMESTAMP(0))
+        """,
+        [
+            row.weight,
+            row.label,
+            row.quantity
+        ],
+    )    
 
     con.table("fact_shipment").show()
 
