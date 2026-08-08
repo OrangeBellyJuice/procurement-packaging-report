@@ -20,13 +20,22 @@ t = datetime.now()
 #)
 
 # HARD CODED FOR NOW FOR DEVELOPMENT
-timestamp = '2026_07_16'
+timestamp = '2026_08_06'
 
 FILE = 'shipping_report_' + timestamp + '.csv'
 
-shipping_report = pd.read_csv('./data/famous_exports/' + FILE, usecols=['productdescr', 'qnt1']).rename(columns={'qnt1' : 'quantity'})
+shipping_report = (
+    pd.read_csv(
+        './data/famous_exports/' + FILE,
+        usecols=['productdescr', 'qnt1']
+    )
+    .rename(columns={
+        'productdescr': 'product',
+        'qnt1': 'quantity'
+    })
+)
 
-shipping_report["productdescr"] = shipping_report["productdescr"].astype('str')
+shipping_report["product"] = shipping_report["product"].astype('str')
 shipping_report["quantity"] = shipping_report["quantity"].astype('int').fillna(0)
 
 results = []
@@ -36,13 +45,13 @@ for rule in MAPPING.itertuples(index=False):
     label = str(rule.label).strip()
     
     pattern = (
-        rf"(?<![\d.])"
+        rf"(?<![\w.])"
         rf"{re.escape(weight)}"
         rf"(?!\w)"
         rf".*{re.escape(label)}\s*$"
     )
 
-    matches = shipping_report["productdescr"].str.contains(
+    matches = shipping_report["product"].str.contains(
         pattern,
         case=False,
         regex=True,
@@ -66,6 +75,7 @@ with duckdb.connect('./database/procurement_mart.db') as con:
                 weight VARCHAR NOT NULL, 
                 label VARCHAR NOT NULL, 
                 quantity BIGINT NOT NULL, 
+                date VARCHAR NOT NULL,
                 imported_at TIMESTAMP NOT NULL 
                 )
                 """)
@@ -77,17 +87,21 @@ with duckdb.connect('./database/procurement_mart.db') as con:
                 weight,
                 label,
                 quantity,
+                date,
                 imported_at
             )
-            VALUES (?, ?, ?, current_timestamp::TIMESTAMP(0))
+            VALUES (?, ?, ?, ?, current_timestamp::TIMESTAMP(0))
         """,
         [
             row.weight,
             row.label,
-            row.quantity
+            row.quantity,
+            timestamp
         ],
     )    
 
-    con.table("fact_shipment").show()
+    con.sql("SELECT * FROM fact_shipment ORDER BY quantity DESC").show(max_rows=1000)
+
+    # con.table("fact_shipment").show()
 
     con.execute("DROP TABLE fact_shipment")
