@@ -1,2 +1,5 @@
 data
 database
+dist
+build
+procurement_etl.spec

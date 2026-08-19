@@ -1,10 +1,19 @@
 import re
+import sys
 import duckdb
 import pandas as pd
 from pathlib import Path
 
-MAPPING = pd.read_csv('./data/product_mapping.csv')
-EXPORT_FOLDER = Path("./data/famous_exports/shipping_reports") 
+if getattr(sys, "frozen", False):
+    BASE_DIR = Path(sys.executable).resolve().parent
+else:
+    BASE_DIR = Path(__file__).resolve().parent
+
+MAPPING_PATH = BASE_DIR / "data" / "product_mapping.csv"
+EXPORT_FOLDER = BASE_DIR / "data" / "famous_exports" / "shipping_reports"
+DATABASE_PATH = BASE_DIR / "database" / "procurement_mart.duckdb"
+
+MAPPING = pd.read_csv(MAPPING_PATH)
 
 results = []
 
@@ -59,7 +68,7 @@ for file in sorted(EXPORT_FOLDER.glob("shipments_by_product_2026_??_??.csv")):
 
 summary = pd.DataFrame(results)
 
-with duckdb.connect("./database/procurement_mart.duckdb") as con:
+with duckdb.connect(DATABASE_PATH) as con:
     con.execute("DROP TABLE IF EXISTS fact_shipment")
 
     con.execute("""
@@ -92,9 +101,3 @@ with duckdb.connect("./database/procurement_mart.duckdb") as con:
                 row.date,
             ],
         )
-
-    con.sql("""
-        SELECT *
-        FROM fact_shipment
-        ORDER BY quantity DESC
-    """).show(max_rows=1102)
