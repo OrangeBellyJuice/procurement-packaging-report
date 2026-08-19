@@ -59,11 +59,11 @@ for file in sorted(EXPORT_FOLDER.glob("shipments_by_product_2026_??_??.csv")):
 
 summary = pd.DataFrame(results)
 
-# print(summary.to_string(index=False))
-
 with duckdb.connect("./database/procurement_mart.duckdb") as con:
+    con.execute("DROP TABLE IF EXISTS fact_shipment")
+
     con.execute("""
-        CREATE TABLE IF NOT EXISTS fact_shipment (
+        CREATE TABLE fact_shipment (
             product VARCHAR NOT NULL,
             weight VARCHAR NOT NULL,
             label VARCHAR NOT NULL,
@@ -97,5 +97,4 @@ with duckdb.connect("./database/procurement_mart.duckdb") as con:
         SELECT *
         FROM fact_shipment
         ORDER BY quantity DESC
-        LIMIT 50
-    """).show(max_rows=1000)
+    """).show(max_rows=1102)
