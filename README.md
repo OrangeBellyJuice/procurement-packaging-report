@@ -1,5 +1,3 @@
-## Overview
-
 # procurement-packaging-report
 A lightweight packaging procurement analytics project that transforms Famous ERP exports with Python and delivers Excel reporting for inventory, usage, waste tracking, reorder planning, and basic forecasting.
 
@@ -9,7 +7,7 @@ Eventually we would want to track how much is wasted/garbage as well. The main p
 
 ## Architecture
 
-![Packaging Intelligence architecture](imgs/application_flow_diagram.png)
+![Packaging Intelligence architecture](imgs/architecture.png)
 
 1. Famous ERP Exports - for now we manually export a CSV and drop in ```data/famous_exports/shipping_reports``` folder. We would like to have one for inventory eventually and that the exports be automated to an email daily which we can grab from.
 2. Procurement ETL - this is a Python script that grabs the respective data from the CSV files and then count how many of each product was packed that day in aggregation.
@@ -31,13 +29,13 @@ Eventually we would want to track how much is wasted/garbage as well. The main p
 
 ## Project Structure
 
-*this is where we add the image from excali*
+![Folder Organization](imgs/folder_structure.png)
 
 PROCUREMENT - gets only the files/folders they need see/use.
 DEVELOPER - the ```dist```,```build``` folders, and ```procurement.spec``` are generated when ```Pyinstaller``` is run on the ```procurement_etl.py``` file. The person working on this is works with the main ```.py``` file.
 
 ## Input Data
-# Shipping Report
+### Shipping Report
 - format for export: ```shipments_by_products_YYYY_MM_DD.csv```
 - date is important because it represents what day the data is from and we use as a column in our database
 - save to: ```data/famous_exports/shipping_reports```
@@ -51,35 +49,32 @@ DEVELOPER - the ```dist```,```build``` folders, and ```procurement.spec``` are g
 - no need for rebuilding after update
 
 ## ETL Logic
-# Extract
+### Extract
 - Locate the shipping reports
 - Read only the required columns
 - Extract date from filename
 
-# Transform 
+### Transform 
 - Rename columns
 - Match product descriptions against mapping rules
 - Use regular expressions to avoid incorrect matches/double counting
 - Aggregate quantities
 - Add report date
 
-# Load
+### Load
 - Build/rebuild ```fact_shipment```
 - Insert transformed rows into DuckDB
 - Make data available to Excel 
 
 ## DuckDB Model
 
-*fact_shipment insert here image here*
+![Database Model](imgs/fact_shipment.png)
 
 - product: the concatenation of label and weight and for display purposes
 - weight: the package style
 - label: the box style
 - quantity: aggregated count of weight and label combinations
 - date: the date of the exported CSV from Famous
-
-## Excel Reporting Layer
-*maybe not include this for now* 
 
 ## User Workflow
 1. Export the report from Famous
@@ -100,6 +95,3 @@ after creating a venv
 
 For building the executable use:
 ```pyinstaller --onefile procurement_etl.py```
-```
-```
-```
