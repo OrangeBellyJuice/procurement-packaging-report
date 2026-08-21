@@ -111,8 +111,36 @@ python -m pip install -r requirements.txt
 after creating a ```.venv``` in project folder
 
 For building the executable use:
-```pyinstaller --onefile procurement_etl.py```  
+```powershell
+pyinstaller --onefile procurement_etl.py
+```  
 the generated executable will be available in the ```dist/``` directory
+
+## Troubleshooting
+
+### Report does not appear
+
+- has the report been created the first time around?
+- does the report have a different name now?
+
+### Product quantity looks wrong
+
+- are there missing files?
+- are there spelling/format mistakes in ```product_mapping.csv```?
+- are the correct ```weight``` and ```label``` values in ```product_mapping.csv```?
+
+### Excel does not update
+
+- has the ```procurement_mart.duckdb``` been moved or deleted?
+- is the ODBC DSN configured correctly? 
+- is the Power Query connection active?
+- have you tried a manual refresh? 
+
+### Executable cannot find files
+
+- have you changed the folder structure from what is depicted in [Project Structure](#project-structure)?
+- are the ```data/``` and ```database/``` folders present?
+- has the executable itself been removed?
 
 ## Known Limitations
 
