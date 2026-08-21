@@ -15,8 +15,6 @@ Eventually we would want to track how much is wasted/garbage as well. The main p
 4. Procurement DB - where we store the aggregated counts by report date.
 5. Procurement Dashboard - connected to database, shows procurement the numbers that they want to see.
 
-*Note: some files are not on repository since they contain company information, hence omission* 
-
 ## Technology Stack
  - Python: has the libraries we want to help us process data and easy to work with
  - pandas: simplifies data reading, extraction, cleaning, and organizing
@@ -31,22 +29,25 @@ Eventually we would want to track how much is wasted/garbage as well. The main p
 
 ![Folder Organization](imgs/folder_structure.png)
 
-PROCUREMENT - gets only the files/folders they need see/use.
-DEVELOPER - the ```dist```,```build``` folders, and ```procurement.spec``` are generated when ```Pyinstaller``` is run on the ```procurement_etl.py``` file. The person working on this is works with the main ```.py``` file.
+PROCUREMENT - gets only the files/folders they need see/use.  
+DEVELOPER - the ```dist```,```build``` folders, and ```procurement.spec``` are generated when ```Pyinstaller``` is run on the ```procurement_etl.py``` file.  
+The person working on this is works with the main ```.py``` file.
+
+*Note: some files are not on repository since they contain company information, hence omission* 
 
 ## Input Data
 ### Shipping Report
-- format for export: ```shipments_by_products_YYYY_MM_DD.csv```
-- date is important because it represents what day the data is from and we use as a column in our database
-- save to: ```data/famous_exports/shipping_reports```
-- columns we want: ```productdesc``` -> ```product``` and ```qnt1``` -> ```quantity```
+- Format for export: ```shipments_by_products_YYYY_MM_DD.csv```
+- Date is important because it represents what day the data is from and we use as a column in our database
+- Save to: ```data/famous_exports/shipping_reports```
+- Columns we want: ```productdesc``` -> ```product``` and ```qnt1``` -> ```quantity```
 
 ## Product Mapping
-- columns: ```weight``` and ```label```
-- the pack style on the company side reads more like a weight and it tells procurement what packaging was used and the label tells us which box it was packed into
-- exists outside of the executable so procurement can quickly update if need be
-- procurement simply opens it up in text editor and adds a line with a weight and label combination separated by a comma, save, and can run executable to get count
-- no need for rebuilding after update
+- Columns: ```weight``` and ```label```
+- The pack style on the company side reads more like a weight and it tells procurement what packaging was used and the label tells us which box it was packed into
+- Exists outside of the executable so procurement can quickly update if need be
+- Procurement simply opens it up in text editor and adds a line with a weight and label combination separated by a comma, save, and can run executable to get count
+- No need for rebuilding after update
 
 ## ETL Logic
 ### Extract
@@ -78,7 +79,7 @@ DEVELOPER - the ```dist```,```build``` folders, and ```procurement.spec``` are g
 
 ## User Workflow
 1. Export the report from Famous
-2. Rename it using the required naming convention shown in [Input Data](#Input Data) section
+2. Rename it using the required naming convention shown in [Input Data](#input-data) section
 3. Place it in the shipping reports folder
 4. Run the procurement executable
 5. Open the Excel report
