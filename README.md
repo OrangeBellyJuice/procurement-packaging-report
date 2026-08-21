@@ -106,14 +106,12 @@ Procurement needs a reliable view of what has shipped so they can determine conf
 
 For developer/maintenance use:
 ```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-```  
-after creating a ```.venv``` in project folder
-
-For building the executable use:
-```powershell
 pyinstaller --onefile procurement_etl.py
-```  
+```
+
 the generated executable will be available in the ```dist/``` directory
 
 ## Troubleshooting
